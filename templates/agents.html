@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-card">
+    <h2>👥 إضافة وكيل جديد</h2>
+    <form id="agentForm" class="mt-4">
+        <div class="mb-3">
+            <label class="form-label">👤 اسم الوكيل</label>
+            <input type="text" class="form-control" id="agent_name" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">✅ إضافة الوكيل</button>
+    </form>
+</div>
+
+<div class="content-card">
+    <h3>📋 قائمة الوكلاء ({{ agents|length }} وكيل)</h3>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>اسم الوكيل</th>
+                <th>تاريخ الإضافة</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agent in agents %}
+            <tr>
+                <td>{{ agent.agent_name }}</td>
+                <td>{{ agent.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('agentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const agent_name = document.getElementById('agent_name').value;
+    
+    const response = await fetch('/add_agent', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({agent_name})
+    });
+    
+    if (response.ok) {
+        alert('✅ تم إضافة الوكيل بنجاح!');
+        location.reload();
+    }
+});
+</script>
+{% endblock %}

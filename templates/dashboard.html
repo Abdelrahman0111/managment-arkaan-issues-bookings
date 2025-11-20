@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center text-white mb-4">
+    <h1 class="display-4">🎯 لوحة التحكم الرئيسية</h1>
+    <p class="lead">مرحباً بك في نظام إدارة المشاكل</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_issues }}</div>
+            <div class="text-muted">📋 إجمالي المشاكل</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_agents }}</div>
+            <div class="text-muted">👥 عدد الوكلاء</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.simple_issues }}</div>
+            <div class="text-muted">✅ مشاكل بسيطة</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.major_issues }}</div>
+            <div class="text-muted">🔴 مشاكل كبيرة</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <h3>🕐 آخر النشاطات</h3>
+    <div class="list-group mt-3">
+        {% for issue in recent_issues %}
+        <div class="list-group-item">
+            <strong>{{ issue.agent_name }}</strong><br>
+            <small class="text-muted">{{ issue.issue_type }} - {{ issue.created_at }}</small>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-card">
+    <h2>💰 إدارة المدفوعات</h2>
+    <h5 class="text-muted">تتبع المدفوعات والمديونيات</h5>
+    
+    {% if issues %}
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>الوكيل</th>
+                    <th>رقم الحجز</th>
+                    <th>المبلغ الكلي</th>
+                    <th>نوع الدفع</th>
+                    <th>القسط الشهري</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th>الحالة</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues %}
+                <tr>
+                    <td>{{ issue.agent_name }}</td>
+                    <td>{{ issue.booking_number }}</td>
+                    <td>{{ issue.discount }}</td>
+                    <td>
+                        <span class="badge {% if issue.payment_type == 'جزئي' %}bg-warning{% else %}bg-info{% endif %}">
+                            {{ issue.payment_type }}
+                        </span>
+                    </td>
+                    <td>{{ issue.monthly_amount or '-' }}</td>
+                    <td>{{ issue.paid_amount or 0 }}</td>
+                    <td>{{ issue.remaining_amount or issue.discount }}</td>
+                    <td>
+                        <span class="badge {% if issue.payment_status == 'مكتمل' %}bg-success{% elif issue.payment_status == 'جزئي' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ issue.payment_status or 'لم يدفع' }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if issue.payment_status != 'مكتمل' %}
+                        <button class="btn btn-sm btn-primary" onclick="recordPayment('{{ issue.booking_number }}', {{ issue.monthly_amount or issue.discount }})">
+                            تسجيل دفعة
+                        </button>
+                        {% else %}
+                        <span class="text-success">✅ مكتمل</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        <p>لا توجد مدفوعات لعرضها</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal لتسجيل الدفعة -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تسجيل دفعة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="payment_booking">
+                <div class="mb-3">
+                    <label class="form-label">المبلغ المدفوع</label>
+                    <input type="number" class="form-control" id="payment_amount" step="0.01">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="submitPayment()">تأكيد الدفع</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let paymentModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+});
+
+function recordPayment(booking, amount) {
+    document.getElementById('payment_booking').value = booking;
+    document.getElementById('payment_amount').value = amount;
+    paymentModal.show();
+}
+
+async function submitPayment() {
+    const booking = document.getElementById('payment_booking').value;
+    const amount = parseFloat(document.getElementById('payment_amount').value);
+    
+    const response = await fetch('/record_payment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({booking_number: booking, payment_amount: amount})
+    });
+    
+    if (response.ok) {
+        alert('✅ تم تسجيل الدفعة بنجاح!');
+        location.reload();
+    } else {
+        alert('❌ حدث خطأ في تسجيل الدفعة');
+    }
+}
+</script>
+{% endblock %}

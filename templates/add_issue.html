@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-card">
+    <h2>➕ إضافة مشكلة جديدة</h2>
+    <form id="issueForm" class="mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">👤 اسم الوكيل</label>
+                    <select class="form-select" id="agent_name" required>
+                        {% for agent in agents %}
+                        <option>{{ agent }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">🔢 رقم الحجز</label>
+                    <input type="text" class="form-control" id="booking_number" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">💰 الخصم</label>
+                    <input type="number" class="form-control" id="discount" value="0" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">📌 نوع المشكلة</label>
+                    <select class="form-select" id="issue_type">
+                        <option>مشكلة بسيطة</option>
+                        <option>مشكلة متوسطة</option>
+                        <option>مشكلة كبيرة</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">💳 نوع الدفع</label>
+                    <select class="form-select" id="payment_type" onchange="toggleMonthlyAmount()">
+                        <option value="كلي">دفع كلي</option>
+                        <option value="جزئي">دفع جزئي (أقساط)</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="monthly_amount_div" style="display:none;">
+                    <label class="form-label">📅 القسط الشهري</label>
+                    <input type="number" class="form-control" id="monthly_amount" value="0" step="0.01">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">📅 تاريخ تسجيل الدخول</label>
+                    <input type="date" class="form-control" id="check_in" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">📅 تاريخ تسجيل الخروج</label>
+                    <input type="date" class="form-control" id="check_out" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">📝 ملاحظات</label>
+                    <textarea class="form-control" id="notes" rows="5"></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-100">✅ حفظ المشكلة</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleMonthlyAmount() {
+    const paymentType = document.getElementById('payment_type').value;
+    const monthlyDiv = document.getElementById('monthly_amount_div');
+    monthlyDiv.style.display = paymentType === 'جزئي' ? 'block' : 'none';
+}
+
+document.getElementById('issueForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const data = {
+        agent_name: document.getElementById('agent_name').value,
+        booking_number: document.getElementById('booking_number').value,
+        discount: document.getElementById('discount').value,
+        notes: document.getElementById('notes').value,
+        check_in: document.getElementById('check_in').value,
+        check_out: document.getElementById('check_out').value,
+        issue_type: document.getElementById('issue_type').value,
+        payment_type: document.getElementById('payment_type').value,
+        monthly_amount: document.getElementById('monthly_amount').value
+    };
+    
+    const response = await fetch('/add_issue', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+        alert('✅ تم حفظ المشكلة بنجاح!');
+        location.reload();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-card">
+    <h2>📄 التقارير والتصدير</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h5>🔍 تصفية البيانات</h5>
+            <div class="mb-3">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" class="form-control" id="start_date">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" class="form-control" id="end_date">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">اختر الوكلاء</label>
+                <select class="form-select" id="agent_filter" multiple>
+                    <option value="all">الكل</option>
+                    {% for agent in agents %}
+                    <option>{{ agent }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h5>📊 خيارات التصدير</h5>
+            <form action="/export_excel" method="post">
+                <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                    📥 تحميل ملف Excel
+                </button>
+            </form>
+            <form action="/export_pdf" method="post">
+                <button type="submit" class="btn btn-danger btn-lg w-100">
+                    📥 تحميل ملف PDF
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
